@@ -1,0 +1,95 @@
+﻿@page "/"
+
+@using Data
+@using Models
+@inject StudentsService service
+
+<div class="container">
+
+    <div class="row bg-light">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Classe Name</th>
+                    <th>Number Of Students</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Students.Any())
+                {
+                    @foreach (var Classe in Students.GroupBy(s => s.Classes.class_name))
+                    {
+                        <tr>
+                            <td>@Classe.Key</td>
+                            <td>@Classe.Count()</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6"><strong>No Students available</strong></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row bg-light">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Countrie Name</th>
+                    <th>Number Of Students</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Students.Any())
+                {
+                    @foreach (var Classe in Students.GroupBy(s => s.Countries.Name))
+                    {
+                        <tr>
+                            <td>@Classe.Key</td>
+                            <td>@Classe.Count()</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6"><strong>No Students available</strong></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row bg-light">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Average age of students</th>
+                    <th>@Average</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+</div>
+
+
+@code {
+
+
+    List<Students> Students = new List<Students>();
+    double Average = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshStudents();
+    }
+
+    private async Task RefreshStudents()
+    {
+
+        Students = await service.GetStudentsAsync();
+        Average = (double)System.Math.Round((Students.Average(s => (DateTime.Now - s.Date_of_birth).TotalDays) / 365), 2);
+    }
+
+}
